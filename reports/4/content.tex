@@ -1,0 +1,170 @@
+\section{Цель работы}
+Цель: работа с программно-аппаратными средствами криптографической защиты информации.
+
+\section{Ход работы}
+\subsection{GPG}
+
+В Linux также есть средства для работы с ключами PGP. На их основе, например, строятся доверительные отношения при распространении ПО: разработчик подписывает дистрибутивы своим ключом, и клиенты могут проверить подлинность файла с помощью опубликованного второго ключа.
+
+В Arch уже установлен пакет gnupg (\url{https://wiki.archlinux.org/title/GnuPG})для работы с ключами (Рисунок 1).
+
+\image{11.png}{Версия gpg}{1}
+\FloatBarrier
+
+\subsubsection{Создание ключевой пары}
+Создадим ключевую пару (Рисунок 2). Во время создания утилита просит выбрать тип шифрования, длину ключа, срок действия, имя, адрес и комментарий. После этого появляется приглашение ввести пароль для ключа (Рисунок 3). После этого утилита сообщает, что публичный и секретный ключи созданы и подписаны (Рисунок 4).
+
+\image{12.png}{Версия gpg}{1}
+\image{13.png}{Версия gpg}{1}
+\image{14.png}{Версия gpg}{1}
+\FloatBarrier
+
+Можем увидеть созданные ключи в ~/.gnupg (Рисунок 5). 
+
+pubring.kbx — контейнер с ключами, содержит один или несколько публичных ключей и сертификатов с метаданными. Этот файл позволяет импортировать публичный ключ в другие программы. 
+
+Закрытые ключи находятся в папке private-keys-v1.d. В папке openpgp-revocs.d/ находится сертификат для отзыва ключей.
+
+\image{15.png}{~/.gnupg}{1}
+\FloatBarrier
+
+Также ключи можно посмотреть в приложении Passwords and Keys (пакет \linebreak seahorse). 
+
+\image{16.png}{Passwords and Keys}{1}
+\image{17.png}{Passwords and Keys}{0.9}
+\FloatBarrier
+\clearpage
+
+
+\subsubsection{Просмотр импортированных ключей}
+Для этого выполним команду \texttt{gpg --list-keys} (Рисунок 8). Видно, что я импортировал ключ для установки Spotify, для драйвера eToken 5110 от Thales и для чего-то ещё. Также можно посмотреть имеющиеся у меня закрытые ключи командой \texttt{gpg --list-secret-keys} (Рисунок 9).
+
+\image{21.png}{Public keys}{1}
+\image{22.png}{Private keys}{1}
+\FloatBarrier
+\clearpage
+
+
+\subsubsection{Экспорт ключей}
+Для экспорта выполним команду \texttt{gpg --export --armor --output my-key.asc asshadrunov@gmail.com}. Файл появляется в директории (Рисунок 10). Внутри у него записаны байты в стандартной для ключей форме (Рисунок 11). 
+
+\image{32.png}{Export key}{1}
+\image{31.png}{Inside asc file}{1}
+\FloatBarrier
+
+Также утилита позволяет экспортировать ключ на публичные серверы ключей. Такой, например, предоставляет Ubuntu.
+\clearpage
+
+
+\subsubsection{Шифрование файла}
+Для шифрования файла нужно импортировать публичный ключ получателя. Так как мой ключ уже импортирован, зашифруем файл file.txt для меня. Для этого выполняю команду \texttt{gpg --recipient asshadrunov@gmail.com --encrypt file.txt} (Рисунок 12). Зашифрованный файл появляется в директории (file.txt.gpg). 
+
+\image{41.png}{Encrypted file}{1}
+\FloatBarrier
+
+Можем зашифровать файл в ASCII-виде с помощью опции \texttt{--armor} (Рисунок 13). Тогда его зашифрованное содержимое легко посмотреть и передать сообщением (Рисунок 14). 
+
+\image{42.png}{ASCII file}{1}
+\image{43.png}{ASCII file}{1}
+\FloatBarrier
+\clearpage
+
+
+\subsubsection{Расшифрование файла}
+Расшифрование произодится командой \texttt{ggpg --decrypt file.txt.asc} (Рисунок 12). Приглашение попросит ввести парольную фразу от ключа.
+
+\image{51.png}{Decrypted file}{1}
+\FloatBarrier
+\clearpage
+
+\subsection{TrueCrypt}
+\subsubsection{Установка}
+
+Установим TrueCrypt на виртуальную машину (Рисунок 16).
+
+\image{61.png}{Installation}{1}
+\FloatBarrier
+
+\subsubsection{Том из файла}
+
+Создадим том TrueCrypt. Для этого откроем окно программы и выберем Create Volume (Рисунок 17).
+
+\image{62.png}{TrueCrypt}{0.85}
+\FloatBarrier
+
+На следующем шаге выбираем файловый контейнер, выбираем расположение, размер тома, задаём пароль (Рисунки 18-22).
+
+\image{63.png}{Create container}{0.85}
+\FloatBarrier
+
+\image{64.png}{Location}{1}
+\FloatBarrier
+
+\image{65.png}{Volume size}{1}
+\FloatBarrier
+
+\image{66.png}{Password}{1}
+\FloatBarrier
+
+Теперь мы можем нажать Select File, а затем Mount, после чего том смонтируется к диску Q: (Рисунок 22). При этом этот диск отображается в системе (в Проводнике).
+
+\image{67.png}{Mounted volume}{1}
+\FloatBarrier
+
+Если нажать Dismount, всё вернётся как было (Рисунок 23).
+
+\image{68.png}{Dismount}{1}
+\FloatBarrier
+
+\clearpage
+
+
+\subsubsection{Шифрование системного раздела}
+
+Запустим System > Encrypt system partition. Далее выбираем область для шифрования (только раздел с Windows), опции шифрования, пароль. После этого мастер сгенерирует ключи и попросит записать их на диск. Это можно пропустить, если запустить мастера с ключом /n. После этого система предложит перезагрузить компьютер (Рисунки 24-28).
+
+\image{71.png}{Encrypt system partition}{0.85}
+\FloatBarrier
+
+\image{72.png}{Encryption options}{1}
+\FloatBarrier
+
+\image{73.png}{Password}{1}
+\FloatBarrier
+
+\image{74.png}{Keys generated}{1}
+\FloatBarrier
+
+\image{75.png}{Prompt ro reboot}{1}
+\FloatBarrier
+
+При перезагрузке вместо загрузчика Windows мы увидим TrueCrypt Boot \linebreak Loader, который просит ввести пароль, чтобы расшифровать раздел с Windows (Рисунок 29).
+
+\image{76.png}{TrueCrypt Boot Loader}{1}
+\FloatBarrier
+
+После успешного ввода пароля загрузка продолжается (Рисунок 30), а мастер сообщает нам, что проверка пройдена (Рисунок 31).
+
+\image{77.png}{Windows loading}{1}
+\FloatBarrier
+
+\image{78.png}{Pretest completed}{1}
+\FloatBarrier
+
+После этого начинается шифрование диска. Прогресс виден на рисунке 32.
+
+\image{79.png}{Disk encryption}{1}
+\FloatBarrier
+
+После этого раздел C: отображается в TrueCrypt как зашифрованный том (Рисунок 33).
+
+\image{80.png}{System partition in TrueCrypt}{1}
+\FloatBarrier
+
+\clearpage
+
+
+\section{Выводы о проделанной работе}
+Я изучил работу с программно-аппаратными средствами криптографической защиты информации на примере программы для шифрования gpg и программы для шифрования томов TrueCrypt.
+
+\clearpage
